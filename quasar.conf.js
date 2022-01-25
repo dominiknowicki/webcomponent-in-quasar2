@@ -20,6 +20,7 @@ module.exports = configure(function (ctx) {
     // --> boot files are part of "main.js"
     // https://quasar.dev/quasar-cli/boot-files
     boot: [
+      'webcomponents'
     ],
 
     // https://quasar.dev/quasar-cli/quasar-conf-js#Property%3A-css
@@ -64,9 +65,19 @@ module.exports = configure(function (ctx) {
 
       // https://quasar.dev/quasar-cli/handling-webpack
       // "chain" is a webpack-chain object https://github.com/neutrinojs/webpack-chain
-      chainWebpack (/* chain */) {
-        //
-      },
+      chainWebpack (chain) {
+        // chain.plugin('eslint-webpack-plugin')
+        //   .use(ESLintPlugin, [{ extensions: ['js', 'vue'] }])
+        chain.module
+          .rule('vue')
+          .use('vue-loader')
+          .tap(options => {
+            if (!options.compilerOptions) options.compilerOptions = {}
+            options.compilerOptions.isCustomElement = tag => (tag.startsWith('wc-') || ['wc-webcomponent'].includes(tag))
+            console.log('***options.compilerOptions', options.compilerOptions)
+            return options
+          })
+      }
     },
 
     // Full list of options: https://quasar.dev/quasar-cli/quasar-conf-js#Property%3A-devServer
